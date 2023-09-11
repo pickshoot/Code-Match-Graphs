@@ -1,0 +1,49 @@
+8.2 Future Work
+In this report, we have analyzed the effectiveness of ChatGPT in generating Python code, con-
+sidering aspects such as accuracy, quality, readability, and usability. However, there remains
+room for further research in this domain. In this section, we propose several areas of exploration
+that future researchers could investigate to better comprehend the potential of ChatGPT and
+other AI models for generating code across various circumstances.
+8.2.1 Expanding Programming Languages
+Our analysis was solely focused on Python, an immensely popular and widespread programming
+language. However, assessing the effectiveness of ChatGPT and other AI models in generating
+code for other programming languages is an essential avenue for future research. Investigating a
+broader set of programming languages such as JavaScript, Java, C++, or C# may yield insights
+into the strengths and weaknesses of AI-driven code generation across diverse programming
+environments.
+8.2.2 Increased Prompt Instances
+To improve the assessment of ChatGPT’s code generation capabilities, future research could in-
+crease the number of prompts and chances provided to the AI, allowing it to generate appropriate
+solutions. By presenting the model with a wider variety of scenarios, researchers can better ex-
+amine its effectiveness across diverse tasks. Additionally, this may reveal commonalities in the
+AI’s performance and help identify particular areas where further improvements could be made
+in code generation.
+27
+8.2.3 Complexity of Prompts
+Our current analysis has primarily centered on relatively simple Python code generation tasks.
+Future work could examine ChatGPT’s performance on more complex prompts, presenting in-
+tricately designed problems that require a deeper understanding of algorithms, data structures,
+and software architecture. Investigating the AI’s ability to generate code for these complex tasks
+could reveal valuable insights into the model’s limitations and the extent of its capabilities.
+8.2.4 Chaining Prompts
+Another potential area for future exploration is chaining prompts, where a series of tasks must be
+solved sequentially or interconnectedly. Chaining prompts may require an AI model to exhibit
+greater contextual understanding, problem-solving skills, and maintain state across multiple
+tasks. Investigating the capability of ChatGPT and other AI models to handle chained prompts
+could shed light on their performance across more sophisticated and interactive situations.
+8.2.5 Examining Different Types of Prompts
+Finally, future research could investigate the impact of prompt types on AI code generation,
+comparing the performance of AI models given zero-shot prompts, where no prior examples of
+the task are provided, and few-shot prompts, where the AI is given a small number of examples
+to learn from. This analysis could demonstrate how different levels of instruction and contextual
+information affect the accuracy, quality, and readability of the code produced by ChatGPT and
+similar AI models.
+Another promising avenue for research pertains to the potential integration of visual prompts
+within the next generation of AI models, such as GPT-4. This advancement would enable the
+generation of code based on visual descriptions, thus expanding AI capabilities considerably. For
+instance, a visual representation of a website layout could be converted into functional HTML,
+CSS, and JavaScript code. Furthermore, visual cues could also be employed to develop user-
+friendly interfaces or alter the graphical elements of an application. By examining these different
+prompt types, researchers can gain invaluable insights into the optimal techniques and strategies
+for AI code generation. This knowledge holds the potential to enhance the performance of AI
+models, ultimately making them more efficient, versatile, and intuitive to use.

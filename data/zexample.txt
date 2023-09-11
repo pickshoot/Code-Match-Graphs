@@ -1,0 +1,42 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'playermove',
+    'run',
+    'run',
+        'move','input','please','select','a','position','to','place','an','x','1','9',
+
+            'move','int','move',
+            'move','0','move','10',
+                'spaceisfree','move',
+                    'run',
+                    'insertletter','x','move',
+
+                    'print','sorry','space','is','occupied',
+
+                'print','please','type','a','number','within','the','range',
+        
+            'print','please','type','a','number'
