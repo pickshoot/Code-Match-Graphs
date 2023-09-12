@@ -5,6 +5,9 @@ import networkx as nx
 import numpy as np
 from thefuzz import fuzz
 
+# Create dictionary of category colors
+category_colors = {"Signifiers": "#648FFF", "Demonstration": "#785EF0", "Memetic proxy": "#DC267F", "Constraints": "#FE6100", "Meta prompt": "#FFB000"}
+#, "Validation": "#beafc2"
 
 def read_file(filename):
     with open(filename, 'r', encoding='utf-8') as f:
@@ -48,17 +51,8 @@ def get_category(filename):
     else:
         return category
 
-if __name__ == '__main__':
-    task = "Java TicTacToe.txt"
-    #task = "Java Blackjack.txt"
-    #task = "Python TicTacToe.txt"
-    #task = "Python Blackjack.txt"
-    filepath = "data/"
-    list_file = filepath+task
-    with open(list_file, 'r', encoding='utf-8') as f:
-        file_block = f.read()
-    file_names = file_block.splitlines()
-    count = np.zeros(len(file_names))
+def generate_proximity_graph_data(file_names, filepath):
+    
     # Create list of nodes
     nodes = []
     tokens = []
@@ -67,16 +61,11 @@ if __name__ == '__main__':
         nodes.append((ref_file, {'category': category}))
         text = read_file(filepath+ref_file)
         tokens.append(remove_language_keywords(text, ref_file.split('.')[-1]))
-    # Create dictionary of category colors
-    category_colors = {"Signifiers": "#648FFF", "Demonstration": "#785EF0", "Memetic proxy": "#DC267F", "Constraints": "#FE6100", "Meta prompt": "#FFB000"}
-    #, "Validation": "#beafc2"
+    
     # Create graph
     G = nx.Graph()
     G.add_nodes_from(nodes)
-    count_extreme = 0
-    count_strong = 0
-    count_related = 0
-    count_weak = 0
+    
     # Add edges
     threshold = 0.75
     for i, ref_file in enumerate(file_names):
@@ -86,37 +75,49 @@ if __name__ == '__main__':
                 #score = calculate_similarity(filepath+ref_file, filepath+cand_file)
                 if score >= threshold:
                     G.add_edge(ref_file, cand_file, weight=score, color='black')
-                    count_strong = count_strong+1
                 elif score >= (threshold*0.9):
                     G.add_edge(ref_file, cand_file, weight=score*0.25, color='lightgray')
-                    count_related = count_related+1
-                #elif score >= (threshold*0.8):
-                    #G.add_edge(ref_file, cand_file, weight=score*0.10, color='gainsboro')
                 else:
                     G.add_edge(ref_file, cand_file, weight=score*0.05, color='white')
-                    count_weak = count_weak+1
-    """total = count_extreme + count_strong + count_related + count_weak
-    print("total:", total)
-    print("strong:", count_strong, "percentage: ", (count_strong/total) * 100)
-    print("close:", count_related, "percentage: ", (count_related/total) * 100)
-    print("weak:", count_weak, "percentage: ", (count_weak/total) * 100)"""
 
-    # Draw graph
-    if task == "Python TicTacToe.txt":
+    return G, nodes
+
+if __name__ == '__main__':
+    # txt file name which lists which files should be read
+    filename = "Java TicTacToe.txt"
+    #filename = "Java Blackjack.txt"
+    #filename = "Python TicTacToe.txt"
+    #filename = "Python Blackjack.txt"
+    filepath = "data/"
+    # Reads the txt which contains the names of all the selected code files to compare
+    list_file = filepath+filename
+    with open(list_file, 'r', encoding='utf-8') as f:
+        file_block = f.read()
+
+    file_names = file_block.splitlines()
+    # Call function to create the graph
+    G, nodes = generate_proximity_graph_data(file_names, filepath)
+
+    # Draw graph, seeds are used to generate a predetermined figure
+    if filename == "Python TicTacToe.txt":
         pos = nx.spring_layout(G, k=0.2, iterations=50, seed=5)
-    elif task == "Python Blackjack.txt":
+    elif filename == "Python Blackjack.txt":
         pos = nx.spring_layout(G, k=0.2, seed=7)
-    elif task == "Java Blackjack.txt":
+    elif filename == "Java Blackjack.txt":
         pos = nx.spring_layout(G, k=0.2, seed=2)
     else:
         pos = nx.spring_layout(G, k=0.2, seed=1)
 
+    #Colors the nodes and edges based on the task specification method used and the score threshold achieved
     node_colors = [category_colors[data['category']] for _, data in G.nodes(data=True)]
     edge_colors = [color for _, _, color in G.edges(data='color')]
+
     weights = [weight for _, _, weight in G.edges(data='weight')]
     fig, ax = plt.subplots(figsize=(10, 10))
     nx.draw_networkx_nodes(G, pos, node_color=node_colors, node_size=600)
     nx.draw_networkx_edges(G, pos, edge_color=edge_colors, width=weights)
+    
+    # Adds labels to the nodes. The code takes the node name and removes filepath so that only the serial number is shown like A01
     labels = {}
     for node, degree in nodes:
         node_parts = node.split("/")
@@ -130,7 +131,8 @@ if __name__ == '__main__':
     ax = plt.gca()
     ax.legend(handles=[plt.Circle([], [], color=color, label=category) for category, color in category_colors.items()], loc='upper left', fontsize=12)
     plt.axis('off')
-    tsk = task.split(".")
+    #Corrects the filename so that it matches the thesis paper
+    tsk = filename.split(".")
     if tsk[0] == "Java TicTacToe":
         tsk = "Java Tic-Tac-Toe"
     elif tsk[0] == "Python TicTacToe":
