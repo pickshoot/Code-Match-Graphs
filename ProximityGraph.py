@@ -10,6 +10,7 @@ category_colors = {"Signifiers": "#648FFF", "Demonstration": "#785EF0", "Memetic
 #, "Validation": "#beafc2"
 
 def read_file(filename):
+    # Reads the file and creates tokens based on what is considered a word
     with open(filename, 'r', encoding='utf-8') as f:
         text = f.read().lower()
         words = re.findall('\w+', text)
@@ -32,13 +33,12 @@ def calculate_similarity(reference_file, candidate_file):
 
     reference_tokens = remove_language_keywords(reference_text, reference_file.split('.')[-1])
     candidate_tokens = remove_language_keywords(candidate_text, candidate_file.split('.')[-1])
-
     fuz = fuzz.token_sort_ratio(reference_tokens, candidate_tokens) / 100
     return fuz
 
-
 def get_category(filename):
     category = filename.split('/')[0]
+    # Changes the category names to match the spelling in the thesis paper
     if category == "Signifier":
         category = "Signifiers"
         return category
@@ -52,8 +52,7 @@ def get_category(filename):
         return category
 
 def generate_proximity_graph_data(file_names, filepath):
-    
-    # Create list of nodes
+    # Converts the code files into tokens, also stores the nodes category type which determiens the color
     nodes = []
     tokens = []
     for i, ref_file in enumerate(file_names):
@@ -65,14 +64,14 @@ def generate_proximity_graph_data(file_names, filepath):
     # Create graph
     G = nx.Graph()
     G.add_nodes_from(nodes)
-    
-    # Add edges
+
+    # Calculates the code match between each solution listed in file_names
     threshold = 0.75
     for i, ref_file in enumerate(file_names):
         for j, cand_file in enumerate(file_names):
             if i != j and i < j:
                 score = fuzz.token_sort_ratio(tokens[i], tokens[j]) / 100
-                #score = calculate_similarity(filepath+ref_file, filepath+cand_file)
+                
                 if score >= threshold:
                     G.add_edge(ref_file, cand_file, weight=score, color='black')
                 elif score >= (threshold*0.9):
@@ -83,12 +82,13 @@ def generate_proximity_graph_data(file_names, filepath):
     return G, nodes
 
 if __name__ == '__main__':
-    # txt file name which lists which files should be read
+    # txt file name lists which files should be read
     filename = "Java TicTacToe.txt"
     #filename = "Java Blackjack.txt"
     #filename = "Python TicTacToe.txt"
     #filename = "Python Blackjack.txt"
     filepath = "data/"
+
     # Reads the txt which contains the names of all the selected code files to compare
     list_file = filepath+filename
     with open(list_file, 'r', encoding='utf-8') as f:
@@ -125,7 +125,6 @@ if __name__ == '__main__':
         node_num = node_name[0].split("_")
         node_short = (node_num[1])
         labels[node] = node_short
-        #labels[node] = node_short[0]
     nx.draw_networkx_labels(G, pos, labels, font_size=12, font_color='white', font_weight='normal')
 
     ax = plt.gca()
@@ -141,6 +140,6 @@ if __name__ == '__main__':
         tsk = tsk[0]
     plt.title(tsk+" proximity graph", fontsize=24)
     plt.subplots_adjust(bottom=0, right=1, left=0, hspace=0, wspace=0)
-    plt.savefig(tsk+'.png')
+    #plt.savefig(tsk+'.png')
     plt.show()
 
