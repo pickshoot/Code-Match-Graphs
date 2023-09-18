@@ -25,7 +25,7 @@ class Correlation:
             print("Created temps dir")
         if not os.path.exists(self.savepath):
             os.makedirs(self.savepath)
-            print("Created "+self.savepath+" dir")
+            print("Created "+self.savepath+"dir")
 
     def get_category(filename):
         return filename.split('/')[0]
