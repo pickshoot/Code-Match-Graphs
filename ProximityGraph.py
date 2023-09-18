@@ -57,7 +57,7 @@ class Proximity:
 
         return G, nodes
 
-    def Start(self, filename, filepath):
+    def start(self, filename, filepath):
         # Reads the txt which contains the names of all the selected code files to compare
         list_file = filepath+filename
         with open(list_file, 'r', encoding='utf-8') as f:
@@ -120,4 +120,4 @@ if __name__ == '__main__':
     #filename = "Python TicTacToe.txt"
     filename = "Python Blackjack.txt"
     filepath = "data/"
-    proximity.Start(filename, filepath)
+    proximity.start(filename, filepath)
