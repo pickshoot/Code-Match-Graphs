@@ -1,13 +1,31 @@
+import re
+import os
 from collections import Counter
 
 import matplotlib.pyplot as plt
 import numpy as np
+from tempfile import TemporaryFile
 from thefuzz import fuzz
 
 from tokenCalculator import Tokens
 
 
 class Correlation:
+    savefile = ""
+    reset = True
+    savepath = "temps/cm/"
+    # reset should be set to True in order to generate new files otherwise it will use existing saves if they exist.
+    def __init__(self, savefile, reset):
+        self.savefile = savefile
+        if type(reset) == bool:
+            self.reset = reset
+        # Create temp folders if not exist
+        if not os.path.exists("temps"):
+            os.makedirs("temps")
+            print("Created temps dir")
+        if not os.path.exists(self.savepath):
+            os.makedirs(self.savepath)
+            print("Created "+self.savepath+"dir")
 
     def get_category(filename):
         return filename.split('/')[0]
@@ -28,10 +46,51 @@ class Correlation:
                     score = fuzz.token_sort_ratio(tokens[i], tokens[j]) / 100
                     scores[i,j] = score
                     scores[j,i] = score
-
+        self.save_data_cm(self.savefile, scores)
         return scores
+    
+    def save_data_cm(self, filename, scores):
+        try:
+            if filename == "":
+                raise Exception("Savefile destination required!")
 
-    def Start(self, filename, filepath):
+            if not re.findall(".npy$", filename):
+                filename = filename + ".npy"
+
+            with open(self.savepath+filename, 'wb') as f:
+                np.save(f, scores)
+            
+            return
+        except Exception as e:
+            print(e)
+
+    
+    def load_data_cm(self, filename):
+        try:
+            if not re.findall(".npy$", filename):
+                filename = filename + ".npy"
+
+            with open(self.savepath+filename, 'rb') as f:
+                scores = np.load(f)
+            return scores
+        except Exception as e:
+            print(e)
+
+    def reset_data(self, dirpath):
+        try:
+            files = os.listdir(dirpath)
+            for file in files:
+                file_path = os.path.join(dirpath, file)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+        except Exception as e: 
+            print(e)
+        return
+
+    def start(self, filename, filepath):
+        if self.reset:
+            self.reset_data(self.savepath)
+
         # Reads the txt which contains the names of all the selected code files to compare
         list_file = filepath+filename
         with open(list_file, 'r', encoding='utf-8') as f:
@@ -39,7 +98,12 @@ class Correlation:
 
         file_names = file_block.splitlines()
         # Call function to create the graph
-        scores = self.generate_correlation_matrix_data(file_names, filepath)
+        if os.path.isfile(self.savepath+self.savefile+".npy"):
+            scores = self.load_data_cm(self.savefile)
+            print("loaded data")
+        else:
+            scores = self.generate_correlation_matrix_data(file_names, filepath)
+            print("generated data")
 
 
         fig, ax = plt.subplots(figsize=(12,12))
@@ -77,11 +141,11 @@ class Correlation:
         plt.show()
 
 if __name__ == '__main__':
-    correlation = Correlation()
+    correlation = Correlation("score_cm", True)
     # txt file name lists which files should be read
-    filename = "Java TicTacToe.txt"
-    #filename = "Java Blackjack.txt"
+    #filename = "Java TicTacToe.txt"
+    filename = "Java Blackjack.txt"
     #filename = "Python TicTacToe.txt"
     #filename = "Python Blackjack.txt"
     filepath = "data/"
-    correlation.Start(filename, filepath)
+    correlation.start(filename, filepath)
