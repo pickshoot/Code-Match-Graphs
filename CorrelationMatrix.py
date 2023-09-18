@@ -1,61 +1,24 @@
-import re
 from collections import Counter
 
 import matplotlib.pyplot as plt
 import numpy as np
 from thefuzz import fuzz
 
+from tokenCalculator import Tokens
+
+
 class Correlation:
-    keywordsPython = " "
-    keywordsJava = " "
-
-    """def __init__(self):
-        print("init")"""
-
-    def read_file(self, filename):
-        # Reads the file and creates tokens based on what is considered a word
-        with open(filename, 'r', encoding='utf-8') as f:
-            text = f.read().lower()
-            words = re.findall('\w+', text)
-        return words
-
-    def remove_language_keywords(self, words, language):
-        # Remove language-specific keywords
-        if language == "py":
-            if self.keywordsPython == " ":
-                with open("keywords/python.txt", 'r', encoding='utf-8') as f:
-                    keywords_block = f.read()
-                self.keywordsPython = keywords_block.splitlines()
-            keywords = self.keywordsPython
-        elif language == "java":
-            if self.keywordsJava == " ":
-                with open("keywords/java.txt", 'r', encoding='utf-8') as f:
-                    keywords_block = f.read()
-                self.keywordsJava = keywords_block.splitlines()
-            keywords = self.keywordsJava
-        else:
-            return words
-        filtered_words = [word for word in words if word not in keywords]
-        return filtered_words
-
-    def calculate_similarity(self, reference_file, candidate_file):
-        reference_text = self.read_file(reference_file)
-        candidate_text = self.read_file(candidate_file)
-
-        reference_tokens = self.remove_language_keywords(reference_text, reference_file.split('.')[-1])
-        candidate_tokens = self.remove_language_keywords(candidate_text, candidate_file.split('.')[-1])
-        fuz = fuzz.token_sort_ratio(reference_tokens, candidate_tokens) / 100
-        return fuz
 
     def get_category(filename):
         return filename.split('/')[0]
 
     def generate_correlation_matrix_data(self, file_names, filepath):
         # Converts the code files into tokens
+        tokenCalc = Tokens()
         tokens = []
         for i, ref_file in enumerate(file_names):
-            text = self.read_file(filepath+ref_file)
-            tokens.append(self.remove_language_keywords(text, ref_file.split('.')[-1]))
+            text = tokenCalc.read_file(filepath+ref_file)
+            tokens.append(tokenCalc.remove_language_keywords(text, ref_file.split('.')[-1]))
 
         # Calculates the code match between each solution listed in file_names
         scores = np.zeros((len(file_names), len(file_names)))
@@ -68,14 +31,7 @@ class Correlation:
 
         return scores
 
-    def Start(self):
-        # txt file name lists which files should be read
-        filename = "Java TicTacToe.txt"
-        #filename = "Java Blackjack.txt"
-        #filename = "Python TicTacToe.txt"
-        #filename = "Python Blackjack.txt"
-        filepath = "data/"
-
+    def Start(self, filename, filepath):
         # Reads the txt which contains the names of all the selected code files to compare
         list_file = filepath+filename
         with open(list_file, 'r', encoding='utf-8') as f:
@@ -122,4 +78,10 @@ class Correlation:
 
 if __name__ == '__main__':
     correlation = Correlation()
-    correlation.Start()
+    # txt file name lists which files should be read
+    filename = "Java TicTacToe.txt"
+    #filename = "Java Blackjack.txt"
+    #filename = "Python TicTacToe.txt"
+    #filename = "Python Blackjack.txt"
+    filepath = "data/"
+    correlation.Start(filename, filepath)

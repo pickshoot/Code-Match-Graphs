@@ -1,55 +1,15 @@
-import re
-
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from thefuzz import fuzz
 
+from tokenCalculator import Tokens
+
+
 class Proximity:
     # Create dictionary of category colors
     category_colors = {"Signifiers": "#648FFF", "Demonstration": "#785EF0", "Memetic proxy": "#DC267F", "Constraints": "#FE6100", "Meta prompt": "#FFB000"}
     #, "Validation": "#beafc2"
-
-    keywordsPython = " "
-    keywordsJava = " "
-
-    """def __init__(self):
-        print("init")"""
-
-    def read_file(self, filename):
-        # Reads the file and creates tokens based on what is considered a word
-        with open(filename, 'r', encoding='utf-8') as f:
-            text = f.read().lower()
-            words = re.findall('\w+', text)
-        return words
-
-    def remove_language_keywords(self, words, language):
-        # Remove language-specific keywords
-        if language == "py":
-            if self.keywordsPython == " ":
-                with open("keywords/python.txt", 'r', encoding='utf-8') as f:
-                    keywords_block = f.read()
-                self.keywordsPython = keywords_block.splitlines()
-            keywords = self.keywordsPython
-        elif language == "java":
-            if self.keywordsJava == " ":
-                with open("keywords/java.txt", 'r', encoding='utf-8') as f:
-                    keywords_block = f.read()
-                self.keywordsJava = keywords_block.splitlines()
-            keywords = self.keywordsJava
-        else:
-            return words
-        filtered_words = [word for word in words if word not in keywords]
-        return filtered_words
-
-    def calculate_similarity(self, reference_file, candidate_file):
-        reference_text = self.read_file(reference_file)
-        candidate_text = self.read_file(candidate_file)
-
-        reference_tokens = self.remove_language_keywords(reference_text, reference_file.split('.')[-1])
-        candidate_tokens = self.remove_language_keywords(candidate_text, candidate_file.split('.')[-1])
-        fuz = fuzz.token_sort_ratio(reference_tokens, candidate_tokens) / 100
-        return fuz
 
     def get_category(self, filename):
         category = filename.split('/')[0]
@@ -67,14 +27,15 @@ class Proximity:
             return category
 
     def generate_proximity_graph_data(self, file_names, filepath):
+        tokenCalc = Tokens()
         # Converts the code files into tokens, also stores the nodes category type which determiens the color
         nodes = []
         tokens = []
         for i, ref_file in enumerate(file_names):
             category = self.get_category(ref_file)
             nodes.append((ref_file, {'category': category}))
-            text = self.read_file(filepath+ref_file)
-            tokens.append(self.remove_language_keywords(text, ref_file.split('.')[-1]))
+            text = tokenCalc.read_file(filepath+ref_file)
+            tokens.append(tokenCalc.remove_language_keywords(text, ref_file.split('.')[-1]))
         
         # Create graph
         G = nx.Graph()
@@ -96,14 +57,7 @@ class Proximity:
 
         return G, nodes
 
-    def Start(self):
-        # txt file name lists which files should be read
-        #filename = "Java TicTacToe.txt"
-        #filename = "Java Blackjack.txt"
-        #filename = "Python TicTacToe.txt"
-        filename = "Python Blackjack.txt"
-        filepath = "data/"
-
+    def Start(self, filename, filepath):
         # Reads the txt which contains the names of all the selected code files to compare
         list_file = filepath+filename
         with open(list_file, 'r', encoding='utf-8') as f:
@@ -160,4 +114,10 @@ class Proximity:
 
 if __name__ == '__main__':
     proximity = Proximity()
-    proximity.Start()
+    # txt file name lists which files should be read
+    #filename = "Java TicTacToe.txt"
+    #filename = "Java Blackjack.txt"
+    #filename = "Python TicTacToe.txt"
+    filename = "Python Blackjack.txt"
+    filepath = "data/"
+    proximity.Start(filename, filepath)
